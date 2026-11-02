@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Getij">
+<meta name="theme-color" content="#EEF1F5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1224" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<title>Getij</title>
+<style>
+:root{
+  --bg:#EEF1F5; --surface:#FFFFFF; --ink:#1B2140; --ink-2:#5C6382; --line:#D9DEE8;
+  --period:#B4233C; --period-soft:#F3CDD4; --fertile:#2B8C7E; --fertile-soft:#D3EDE8;
+  --ovu:#C08A22; --sex:#7B4FBF;
+  --serif:ui-serif,"New York","Iowan Old Style",Georgia,serif;
+  --sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
+  color-scheme:light dark;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0F1224; --surface:#181C33; --ink:#E9EBF5; --ink-2:#9AA1BF; --line:#2A2F4D;
+    --period:#E0566E; --period-soft:#4A2130; --fertile:#4FB8A8; --fertile-soft:#173A37;
+    --ovu:#E2B04F; --sex:#A784E6;
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 var(--sans);min-height:100dvh;
+  padding-top:env(safe-area-inset-top);padding-bottom:calc(84px + env(safe-area-inset-bottom));-webkit-font-smoothing:antialiased}
+body.onb{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+.top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:14px 20px 2px;max-width:560px;margin:0 auto}
+.top h1{font:600 30px/1.1 var(--serif);margin:0;letter-spacing:-.01em}
+.top span{color:var(--ink-2);font-size:14px;text-align:right}
+main{padding:6px 20px 24px;max-width:560px;margin:0 auto}
+
+.tabs{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:space-around;
+  background:color-mix(in srgb,var(--surface) 90%,transparent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:5}
+body.onb .tabs{display:none}
+.tabs button{flex:1;background:none;border:0;color:var(--ink-2);font:500 11px/1.2 var(--sans);display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0}
+.tabs button[aria-current=page]{color:var(--ink)}
+.tabs svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* Vandaag */
+.ring{display:block;width:min(80vw,310px);height:auto;margin:6px auto 0}
+.ring .segs{fill:none;stroke-width:17}
+.ring .cap{font:500 14px var(--sans);fill:var(--ink-2)}
+.ring .num{font:600 74px var(--serif);fill:var(--ink);letter-spacing:-.02em}
+.ring .of{font:400 14px var(--sans);fill:var(--ink-2)}
+.phase{text-align:center;margin:10px 0 0}
+.phase h2{font:600 26px/1.15 var(--serif);margin:0}
+.phase p{margin:4px 0 0;color:var(--ink-2)}
+.facts{margin:20px 0 0;border-top:1px solid var(--line)}
+.fact{display:flex;justify-content:space-between;align-items:center;padding:13px 2px;border-bottom:1px solid var(--line);gap:12px}
+.fact .k{color:var(--ink-2);font-size:15px}
+.fact .v{text-align:right;font:600 19px/1.2 var(--serif)}
+.fact .v small{display:block;font:400 13px var(--sans);color:var(--ink-2);margin-top:2px}
+.quick{margin-top:20px}
+.quick p{margin:0 0 8px;font-weight:600}
+.btn{appearance:none;border:0;border-radius:14px;padding:15px 18px;font:600 16px var(--sans);width:100%;display:block;text-align:center}
+.btn.primary{background:var(--period);color:#fff}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+.btn.small{width:auto;padding:9px 16px;border-radius:999px;background:var(--ink);color:var(--surface);font-size:15px}
+.stack{display:grid;gap:10px;margin-top:20px}
+.logged{margin-top:26px}
+.logged h3{font:600 18px var(--serif);margin:0 0 8px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:14px;padding:5px 11px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.tag.sx{color:var(--sex);box-shadow:inset 0 0 0 1px var(--sex)}
+.tag.fl{color:var(--period);box-shadow:inset 0 0 0 1px var(--period)}
+.muted{color:var(--ink-2)}
+.hint{margin:6px 0 4px;padding:12px 14px;border-radius:14px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:14px;display:flex;gap:10px;align-items:flex-start}
+.hint p{margin:0;flex:1}
+.hint button{background:none;border:0;color:var(--ink-2);font-size:20px;line-height:1;padding:0 2px}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:0;box-shadow:inset 0 0 0 1.5px var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:9px 14px;font:500 15px var(--sans)}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--surface);box-shadow:none}
+.chips.flow .chip[aria-pressed=true]{background:var(--period);color:#fff}
+.chips.flow .chip[data-v="0"][aria-pressed=true]{background:var(--ink);color:var(--surface)}
+.chips.sex .chip[aria-pressed=true]{background:var(--sex);color:#fff}
+
+/* Kalender */
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin:6px 0 12px}
+.cal-head h2{font:600 22px var(--serif);margin:0}
+.mbtn{background:none;border:0;padding:4px 8px}
+.iconbtn{width:42px;height:42px;border-radius:50%;border:0;box-shadow:inset 0 0 0 1px var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center}
+.iconbtn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.wk,.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.wk span{text-align:center;font-size:12px;color:var(--ink-2);padding-bottom:4px}
+.cell{aspect-ratio:1;border:0;background:transparent;border-radius:50%;position:relative;font:500 16px var(--sans);color:var(--ink);display:grid;place-items:center;padding:0}
+.cell.out{visibility:hidden}
+.cell.future{color:var(--ink-2)}
+.cell.f{background:var(--fertile-soft)}
+.cell.o{background:var(--fertile-soft);box-shadow:inset 0 0 0 2.5px var(--ovu)}
+.cell.pp{color:var(--period);outline:2px dashed var(--period);outline-offset:-4px}
+.cell.s{color:var(--period);box-shadow:inset 0 0 0 2px var(--period-soft)}
+.cell.p{background:var(--period);color:#fff}
+.cell.today{font-weight:800}
+.cell.today::after{content:'';position:absolute;bottom:5px;left:50%;width:14px;height:2.5px;margin-left:-7px;background:currentColor;border-radius:2px}
+.marks{position:absolute;top:1px;right:1px;display:flex;gap:2px;align-items:center}
+.marks svg{width:11px;height:10px;fill:var(--sex);stroke:var(--surface);stroke-width:1}
+.marks i{width:6px;height:6px;border-radius:50%;background:var(--ink-2);box-shadow:0 0 0 1px var(--surface)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:18px;font-size:13px;color:var(--ink-2)}
+.legend span{display:flex;align-items:center;gap:6px}
+.sw-p,.sw-pp,.sw-f,.sw-o{width:14px;height:14px;border-radius:50%;display:inline-block}
+.sw-p{background:var(--period)}
+.sw-pp{outline:2px dashed var(--period);outline-offset:-2px}
+.sw-f{background:var(--fertile-soft);box-shadow:inset 0 0 0 1px var(--fertile)}
+.sw-o{background:var(--fertile-soft);box-shadow:inset 0 0 0 2px var(--ovu)}
+.legend svg{width:12px;height:11px;fill:var(--sex)}
+.cal-tip{margin-top:14px;font-size:14px;color:var(--ink-2)}
+
+/* Sheet */
+.scrim{position:fixed;inset:0;background:rgba(10,12,25,.42);opacity:0;pointer-events:none;transition:opacity .2s;z-index:10}
+.scrim.open{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-height:90dvh;overflow:auto;background:var(--surface);border-radius:22px 22px 0 0;
+  padding:10px 20px calc(28px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .26s ease;max-width:560px;margin:0 auto;overscroll-behavior:contain;z-index:11}
+.sheet.open{transform:none}
+.sheet:not(.open){visibility:hidden;transition:transform .26s ease,visibility 0s .26s}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 10px}
+.sh-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;position:sticky;top:-10px;background:var(--surface);padding:6px 0 4px;z-index:1}
+.sh-top h3{font:600 22px/1.2 var(--serif);margin:0}
+.sh-top p{margin:2px 0 0;color:var(--ink-2);font-size:14px}
+.grp{margin-top:20px}
+.grp h4{font:600 15px var(--sans);margin:0 0 9px}
+textarea{width:100%;min-height:84px;border:0;box-shadow:inset 0 0 0 1.5px var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:16px/1.4 var(--sans);padding:10px 12px;resize:vertical}
+.note{margin-top:10px;font-size:14px;line-height:1.45;background:var(--fertile-soft);border-radius:12px;padding:10px 12px}
+
+/* Inzichten */
+.stats{display:grid;grid-template-columns:1fr 1fr;column-gap:20px;border-top:1px solid var(--line);margin-top:6px}
+.stat{padding:14px 0;border-bottom:1px solid var(--line)}
+.stat b{display:block;font:600 34px/1.05 var(--serif)}
+.stat span{color:var(--ink-2);font-size:14px;display:block;margin-top:4px}
+h2.sec{font:600 21px var(--serif);margin:30px 0 10px}
+.hist .r{display:grid;grid-template-columns:64px 1fr 40px;align-items:center;gap:10px;padding:6px 0;font-size:14px}
+.hist .r em{font-style:normal;text-align:right;font-weight:600}
+.bar{height:12px;border-radius:6px;background:transparent;position:relative}
+.bar u{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:var(--line)}
+.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:var(--period)}
+.bar.now u{background:repeating-linear-gradient(90deg,var(--line) 0 6px,transparent 6px 9px)}
+.counts .r{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px}
+.counts .r b{font-weight:600;text-align:right}
+.counts .r b small{display:block;font-weight:400;font-size:13px;color:var(--ink-2);margin-top:2px}
+.signal{margin-top:12px;padding:12px 14px;border-radius:14px;box-shadow:inset 0 0 0 1.5px var(--ovu);font-size:14px}
+.signal ul{margin:6px 0 6px;padding-left:18px}
+.signal p{margin:0}
+
+/* Instellingen / onboarding */
+.set{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--line);gap:12px}
+.set .lbl{flex:1}
+.set .lbl small{display:block;color:var(--ink-2);font-size:13px;margin-top:2px}
+.stepper{display:flex;align-items:center;gap:10px;white-space:nowrap}
+.stepper button{width:38px;height:38px;border-radius:50%;border:0;box-shadow:inset 0 0 0 1.5px var(--line);background:var(--surface);color:var(--ink);font-size:20px;line-height:1}
+.stepper b{font:600 20px var(--serif);min-width:26px;text-align:center}
+.sw{appearance:none;-webkit-appearance:none;width:51px;height:31px;border-radius:16px;background:var(--line);position:relative;transition:background .2s;flex:none;margin:0}
+.sw::after{content:'';position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.sw:checked{background:var(--fertile)}
+.sw:checked::after{transform:translateX(20px)}
+.prose{color:var(--ink-2);font-size:15px;line-height:1.55;max-width:62ch}
+.prose.small{font-size:14px}
+.danger{color:var(--period)!important}
+.field{display:block;padding:14px 0;border-bottom:1px solid var(--line)}
+.field span{display:block;margin-bottom:8px}
+input[type=date]{font:16px var(--sans);color:var(--ink);background:var(--surface);border:0;box-shadow:inset 0 0 0 1.5px var(--line);border-radius:12px;padding:11px 12px;width:100%;min-height:46px;-webkit-appearance:none}
+.onb h2.hello{font:600 38px/1.05 var(--serif);margin:18px 0 8px;letter-spacing:-.015em}
+.empty{text-align:center;padding:30px 4px 0}
+.empty h2{font:600 26px var(--serif);margin:0 0 6px}
+
+#toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--ink);color:var(--surface);
+  padding:10px 16px;border-radius:999px;font-size:15px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:20;max-width:90vw;text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top"><h1>Getij</h1><span id="sub"></span></header>
+<main id="view" aria-live="polite"></main>
+
+<nav class="tabs" aria-label="Navigatie">
+  <button data-act="tab" data-v="home"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="3.5" r="1.6" fill="currentColor"/></svg>Vandaag</button>
+  <button data-act="tab" data-v="cal"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Kalender</button>
+  <button data-act="tab" data-v="ins"><svg viewBox="0 0 24 24"><path d="M5 20V11M12 20V5M19 20v-6"/></svg>Inzichten</button>
+  <button data-act="tab" data-v="set"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Instellingen</button>
+</nav>
+
+<div class="scrim" id="scrim" data-act="close"></div>
+<section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Dag loggen"></section>
+<div id="toast" role="status"></div>
+
+<script>
+'use strict';
+/* ---------- opslag ---------- */
+const KEY='getij.v1';
+const fresh=()=>({v:1,onboarded:false,ended:null,hintOff:false,settings:{cycleLen:28,periodLen:5,showFertile:true},days:{}});
+let S=load();
+let tab='home', sheetDate=null, cal=null, obDate='';
+function load(){
+  try{
+    const raw=localStorage.getItem(KEY);
+    if(raw){const o=JSON.parse(raw),f=fresh();return Object.assign(f,o,{settings:Object.assign(f.settings,o.settings||{}),days:o.days||{}});}
+  }catch(e){}
+  return fresh();
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){toast('Opslaan is niet gelukt op dit toestel');}}
+
+/* ---------- datums (dagnummers in UTC, geen zomertijdgedoe) ---------- */
+const DAY=864e5, pad=n=>String(n).padStart(2,'0');
+const toNum=s=>{const[y,m,d]=s.split('-').map(Number);return Math.round(Date.UTC(y,m-1,d)/DAY)};
+const toStr=n=>{const d=new Date(n*DAY);return d.getUTCFullYear()+'-'+pad(d.getUTCMonth()+1)+'-'+pad(d.getUTCDate())};
+const today=()=>{const t=new Date();return Math.round(Date.UTC(t.getFullYear(),t.getMonth(),t.getDate())/DAY)};
+const F=o=>new Intl.DateTimeFormat('nl-BE',Object.assign({timeZone:'UTC'},o));
+const fShort=F({weekday:'short',day:'numeric',month:'short'}), fDM=F({day:'numeric',month:'short'}),
+      fLong=F({weekday:'long',day:'numeric',month:'long'}), fMonth=F({month:'long',year:'numeric'});
+const fmt=(f,n)=>f.format(new Date(n*DAY)).replace(/\.(?=\s|$)/g,'');
+const dnum=n=>new Date(n*DAY).getUTCDate();
+const range=(a,b)=>new Date(a*DAY).getUTCMonth()===new Date(b*DAY).getUTCMonth()?`${dnum(a)}–${fmt(fDM,b)}`:`${fmt(fDM,a)} – ${fmt(fDM,b)}`;
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const days=n=>`${n} ${n===1?'dag':'dagen'}`;
+
+/* ---------- labels ---------- */
+const FLOW=[[0,'Geen'],[1,'Spotting'],[2,'Licht'],[3,'Gemiddeld'],[4,'Zwaar']];
+const SEX=[['beschermd','Beschermd'],['onbeschermd','Onbeschermd']];
+const SYM=['Krampen','Hoofdpijn','Rugpijn','Gevoelige borsten','Opgeblazen','Acne','Misselijk','Moe'];
+const MOOD=['Blij','Kalm','Prikkelbaar','Angstig','Verdrietig','Gevoelig'];
+const ENERGY=['Laag','Normaal','Hoog'];
+const HEART='<svg viewBox="0 0 12 11" aria-hidden="true"><path d="M6 10.2 1.6 5.9A2.7 2.7 0 0 1 6 2.3a2.7 2.7 0 0 1 4.4 3.6Z"/></svg>';
+
+/* ---------- gegevens ---------- */
+function setEntry(s,patch){
+  const e=Object.assign({},S.days[s]||{},patch);
+  if(!e.flow) delete e.flow;
+  if(!e.sex) delete e.sex;
+  if(!e.energy) delete e.energy;
+  if(!e.note) delete e.note;
+  if(!e.sym||!e.sym.length) delete e.sym;
+  if(!e.mood||!e.mood.length) delete e.mood;
+  if(Object.keys(e).length) S.days[s]=e; else delete S.days[s];
+  save();
+}
+// Menstruaties = reeksen dagen met bloeding (licht of meer); 1 dag zonder ertussen telt nog mee.
+function runs(){
+  const b=Object.keys(S.days).filter(k=>(S.days[k].flow||0)>=2).map(toNum).sort((a,b)=>a-b);
+  const out=[];
+  for(const n of b){const l=out[out.length-1]; if(l&&n-l.end<=2) l.end=n; else out.push({start:n,end:n});}
+  return out;
+}
+// Kalendermethode: ovulatie op cyclusdag (cycluslengte − 14), vruchtbaar venster = die dag + 5 dagen ervoor.
+function model(){
+  const T=today(), R=runs(), st=S.settings;
+  const cycles=[];
+  for(let i=1;i<R.length;i++) cycles.push({start:R[i-1].start,len:R[i].start-R[i-1].start,plen:R[i-1].end-R[i-1].start+1});
+  const use=cycles.filter(c=>c.len>=15&&c.len<=90).slice(-6);
+  const avgCycle=use.length?Math.round(use.reduce((a,c)=>a+c.len,0)/use.length):st.cycleLen;
+  const doneP=R.filter(r=>r.end<T-1).slice(-6);
+  const avgPeriod=doneP.length?Math.round(doneP.reduce((a,r)=>a+r.end-r.start+1,0)/doneP.length):st.periodLen;
+  const m={T,R,cycles,use,avgCycle,avgPeriod,pred:new Set(),fert:new Set(),ovu:new Set(),windows:[]};
+  if(!R.length){m.none=true;return m;}
+  const last=R[R.length-1]; m.last=last;
+  m.next=last.start+avgCycle;
+  m.cycleDay=T-last.start+1;
+  m.lateBy=T-m.next;
+  m.inPeriod= S.ended!==toStr(last.start) && (last.end===T || (last.end===T-1 && m.cycleDay<=avgPeriod));
+  const base=m.lateBy>0?T:m.next;
+  for(let k=0;k<6;k++){
+    const s=base+k*avgCycle;
+    for(let d=s;d<s+avgPeriod;d++) if(d>=T&&d>last.end) m.pred.add(d);
+    if(k===0&&m.lateBy>0) continue;
+    const ov=s-15, w={from:ov-5,to:ov,ov};
+    m.windows.push(w);
+    for(let d=w.from;d<=w.to;d++) if(d>last.end) (d===ov?m.ovu:m.fert).add(d);
+  }
+  const showF=st.showFertile, fw=m.lateBy<=0?m.windows[0]:null;
+  if(m.inPeriod) m.ph={k:'period',t:'Menstruatie',d:`Dag ${m.cycleDay} van je menstruatie`};
+  else if(m.lateBy>60) m.ph={k:'stale',t:'Geen recente gegevens',d:'Log je laatste menstruatie om de voorspellingen bij te werken'};
+  else if(m.lateBy>0) m.ph={k:'late',t:'Menstruatie verwacht',d:`${days(m.lateBy)} later dan verwacht`};
+  else if(m.lateBy===0) m.ph={k:'due',t:'Menstruatie verwacht',d:'Vandaag, volgens je gemiddelde'};
+  else if(fw&&T===fw.ov) m.ph=showF?{k:'ovu',t:'Geschatte ovulatie',d:'Vandaag is de geschatte ovulatiedag'}:{k:'mid',t:'Midden van je cyclus',d:`Menstruatie over ${days(-m.lateBy)}`};
+  else if(fw&&T>=fw.from&&T<fw.ov) m.ph=showF?{k:'fert',t:'Vruchtbaar venster',d:`Geschat tot en met ${fmt(fDM,fw.ov)}`}:{k:'mid',t:'Midden van je cyclus',d:`Menstruatie over ${days(-m.lateBy)}`};
+  else if(fw&&T<fw.from) m.ph={k:'fol',t:'Folliculaire fase',d:showF?`Vruchtbaar venster over ${days(fw.from-T)}`:`Menstruatie over ${days(-m.lateBy)}`};
+  else m.ph={k:'lut',t:'Luteale fase',d:`Menstruatie over ${days(-m.lateBy)}`};
+  return m;
+}
+
+/* ---------- ring ---------- */
+const pt=(cx,cy,r,a)=>{const t=(a-90)*Math.PI/180;return[(cx+r*Math.cos(t)).toFixed(2),(cy+r*Math.sin(t)).toFixed(2)]};
+const arc=(cx,cy,r,a0,a1)=>{const[x0,y0]=pt(cx,cy,r,a0),[x1,y1]=pt(cx,cy,r,a1);return`M${x0} ${y0}A${r} ${r} 0 ${a1-a0>180?1:0} 1 ${x1} ${y1}`};
+function ring(m){
+  const total=Math.max(m.avgCycle,m.cycleDay), C=150, R=120, showF=S.settings.showFertile;
+  const gap=Math.min(2,360/total*.22);
+  let segs='';
+  for(let d=1;d<=total;d++){
+    const n=m.last.start+d-1, e=S.days[toStr(n)]||{};
+    let c='var(--line)';
+    if((e.flow||0)>=2) c='var(--period)';
+    else if(m.pred.has(n)) c='var(--period-soft)';
+    else if(showF&&m.ovu.has(n)) c='var(--ovu)';
+    else if(showF&&m.fert.has(n)) c='var(--fertile)';
+    const op=(n>m.T&&c!=='var(--line)')?.5:1;
+    segs+=`<path d="${arc(C,C,R,(d-1)/total*360+gap/2,d/total*360-gap/2)}" stroke="${c}" stroke-opacity="${op}"/>`;
+  }
+  const[tx,ty]=pt(C,C,R,(m.cycleDay-.5)/total*360);
+  return `<svg class="ring" viewBox="0 0 300 300" role="img" aria-label="Cyclusdag ${m.cycleDay} van ongeveer ${m.avgCycle}">
+    <g class="segs">${segs}</g>
+    <circle cx="${tx}" cy="${ty}" r="13" fill="var(--surface)" stroke="var(--ink)" stroke-width="3.5"/>
+    <text x="150" y="112" text-anchor="middle" class="cap">Cyclusdag</text>
+    <text x="150" y="178" text-anchor="middle" class="num">${m.cycleDay}</text>
+    <text x="150" y="204" text-anchor="middle" class="of">van ± ${m.avgCycle}</text>
+  </svg>`;
+}
+
+/* ---------- views ---------- */
+function installHint(){
+  const ios=/iPhone|iPad|iPod/.test(navigator.userAgent);
+  const standalone=navigator.standalone||matchMedia('(display-mode: standalone)').matches;
+  if(!ios||standalone||S.hintOff) return '';
+  return `<div class="hint"><p>Zet Getij op je beginscherm: tik in Safari op Deel en kies <b>Zet op beginscherm</b>. Log daarna alleen nog via dat icoon.</p><button data-act="hint-off" aria-label="Verbergen">×</button></div>`;
+}
+function todayTags(n){
+  const e=S.days[toStr(n)]||{}, t=[];
+  if(e.flow) t.push(`<span class="tag fl">${FLOW[e.flow][1]}</span>`);
+  if(e.sex) t.push(`<span class="tag sx">Seks · ${e.sex}</span>`);
+  (e.sym||[]).forEach(x=>t.push(`<span class="tag">${x}</span>`));
+  (e.mood||[]).forEach(x=>t.push(`<span class="tag">${x}</span>`));
+  if(e.energy) t.push(`<span class="tag">Energie ${e.energy.toLowerCase()}</span>`);
+  if(e.note) t.push(`<span class="tag">Notitie</span>`);
+  return t.length?`<div class="tags">${t.join('')}</div>`:`<p class="muted" style="margin:0">Nog niets gelogd vandaag.</p>`;
+}
+function viewHome(){
+  const m=model(), T=m.T, te=S.days[toStr(T)]||{};
+  const logBlock=`<div class="logged"><h3>Vandaag</h3>${todayTags(T)}<div class="stack" style="margin-top:12px"><button class="btn ghost" data-act="open" data-d="${toStr(T)}">Vandaag loggen</button></div></div>`;
+  if(m.none) return installHint()+`<div class="empty"><h2>Begin met je menstruatie</h2>
+    <p class="prose" style="margin:0 auto">Log de eerste dag van je menstruatie. Daarna zie je hier je cyclusdag, je volgende menstruatie en je vruchtbare dagen.</p>
+    <div class="stack"><button class="btn primary" data-act="start">Menstruatie begint vandaag</button>
+    <button class="btn ghost" data-act="tab" data-v="cal">Andere dag kiezen in de kalender</button></div></div>`+logBlock;
+
+  let html=installHint();
+  if(m.ph.k!=='stale') html+=ring(m);
+  html+=`<div class="phase"><h2>${m.ph.t}</h2><p>${m.ph.d}</p></div>`;
+
+  const nextP=m.lateBy>0?null:m.next;
+  const w=m.windows.find(x=>x.to>=T);
+  html+=`<div class="facts">`;
+  if(nextP!==null) html+=`<div class="fact"><span class="k">Volgende menstruatie</span><span class="v">${cap(fmt(fShort,nextP))}<small>${nextP===T?'vandaag':'over '+days(nextP-T)}</small></span></div>`;
+  if(S.settings.showFertile&&w) html+=`<div class="fact"><span class="k">Vruchtbaar venster</span><span class="v">${range(w.from,w.to)}<small>${T>=w.from?'nu bezig, geschat':'geschat'}</small></span></div>`;
+  html+=`<div class="fact"><span class="k">Gemiddelde cyclus</span><span class="v">${days(m.avgCycle)}<small>${m.use.length?'uit '+m.use.length+(m.use.length===1?' cyclus':' cycli'):'standaardwaarde'}</small></span></div>`;
+  html+=`</div>`;
+
+  if(m.inPeriod){
+    html+=`<div class="quick"><p>Bloeding vandaag</p><div class="chips flow">
+      ${[[2,'Licht'],[3,'Gemiddeld'],[4,'Zwaar']].map(([v,l])=>`<button class="chip" data-act="flow-today" data-v="${v}" aria-pressed="${te.flow===v}">${l}</button>`).join('')}
+      <button class="chip" data-act="stop">Gestopt</button></div></div>`;
+  } else if((te.flow||0)<2) {
+    html+=`<div class="stack"><button class="btn primary" data-act="start">Menstruatie begint vandaag</button></div>`;
+  }
+  return html+logBlock;
+}
+
+function viewCal(){
+  const m=model(), T=m.T, showF=S.settings.showFertile;
+  if(!cal){const d=new Date(T*DAY);cal={y:d.getUTCFullYear(),mo:d.getUTCMonth()};}
+  const first=Math.round(Date.UTC(cal.y,cal.mo,1)/DAY), dim=new Date(Date.UTC(cal.y,cal.mo+1,0)).getUTCDate();
+  const lead=(new Date(first*DAY).getUTCDay()+6)%7;
+  let cells='';
+  for(let i=0;i<lead;i++) cells+='<span class="cell out"></span>';
+  for(let i=0;i<dim;i++){
+    const n=first+i, s=toStr(n), e=S.days[s]||{}, cls=['cell'], lab=[];
+    if(n===T){cls.push('today');lab.push('vandaag');}
+    if(n>T) cls.push('future');
+    if((e.flow||0)>=2){cls.push('p');lab.push('menstruatie');}
+    else if(e.flow===1){cls.push('s');lab.push('spotting');}
+    else if(m.pred.has(n)){cls.push('pp');lab.push('verwachte menstruatie');}
+    else if(showF&&m.ovu.has(n)){cls.push('o');lab.push('geschatte ovulatie');}
+    else if(showF&&m.fert.has(n)){cls.push('f');lab.push('vruchtbaar');}
+    let mk='';
+    if(e.sex){mk+=HEART;lab.push('seks');}
+    if(e.sym||e.mood||e.energy||e.note) mk+='<i></i>';
+    cells+=`<button class="${cls.join(' ')}" data-act="open" data-d="${s}" aria-label="${fmt(fLong,n)}${lab.length?', '+lab.join(', '):''}">${i+1}${mk?`<span class="marks">${mk}</span>`:''}</button>`;
+  }
+  const chev=d=>`<svg viewBox="0 0 24 24"><path d="${d}"/></svg>`;
+  return `<div class="cal-head">
+      <button class="iconbtn" data-act="cal" data-v="-1" aria-label="Vorige maand">${chev('M15 5l-7 7 7 7')}</button>
+      <button class="mbtn" data-act="cal" data-v="0" aria-label="Naar deze maand"><h2>${cap(fMonth.format(new Date(first*DAY)))}</h2></button>
+      <button class="iconbtn" data-act="cal" data-v="1" aria-label="Volgende maand">${chev('M9 5l7 7-7 7')}</button>
+    </div>
+    <div class="wk">${['ma','di','wo','do','vr','za','zo'].map(d=>`<span>${d}</span>`).join('')}</div>
+    <div class="grid">${cells}</div>
+    <div class="legend">
+      <span><i class="sw-p"></i>Menstruatie</span><span><i class="sw-pp"></i>Verwacht</span>
+      ${showF?'<span><i class="sw-f"></i>Vruchtbaar</span><span><i class="sw-o"></i>Ovulatie</span>':''}
+      <span>${HEART}Seks</span>
+    </div>
+    <p class="cal-tip">Tik op een dag om bloeding, seks, klachten of stemming te loggen.</p>`;
+}
+
+function viewIns(){
+  const m=model(), T=m.T;
+  if(m.none) return `<div class="empty"><h2>Nog geen inzichten</h2><p class="prose" style="margin:0 auto">Zodra je menstruaties logt, zie je hier je gemiddelden en patronen.</p></div>`;
+  const lens=m.cycles.map(c=>c.len);
+  let h=`<div class="stats">
+    <div class="stat"><b>${m.use.length?m.avgCycle:'–'}</b><span>dagen gemiddelde cyclus</span></div>
+    <div class="stat"><b>${m.avgPeriod}</b><span>dagen gemiddelde menstruatie</span></div>
+    <div class="stat"><b>${lens.length>=2?Math.min(...lens)+'–'+Math.max(...lens):'–'}</b><span>kortste tot langste cyclus</span></div>
+    <div class="stat"><b>${m.cycles.length}</b><span>${m.cycles.length===1?'volledige cyclus':'volledige cycli'} gelogd</span></div>
+  </div>`;
+  if(!m.use.length) h+=`<p class="prose small">Na je volgende menstruatie berekent Getij je eigen gemiddelde. Tot dan gebruikt het ${m.avgCycle} dagen.</p>`;
+
+  // geschiedenis
+  const rows=[{start:m.last.start,len:m.cycleDay,plen:m.last.end-m.last.start+1,now:true}].concat(m.cycles.slice().reverse()).slice(0,9);
+  const scale=Math.max(40,...rows.map(r=>r.len));
+  h+=`<h2 class="sec">Cycli</h2><div class="hist">`+rows.map(r=>`<div class="r"><span class="muted">${fmt(fDM,r.start)}</span>
+    <div class="bar${r.now?' now':''}"><u style="width:${r.len/scale*100}%"></u><i style="width:${Math.min(r.plen,r.len)/scale*100}%"></i></div>
+    <em>${r.now?'nu':r.len}</em></div>`).join('')+`</div>`;
+
+  // seks
+  const curDays=Object.keys(S.days).filter(k=>{const n=toNum(k);return n>=m.last.start&&n<=T&&S.days[k].sex});
+  const d90=Object.keys(S.days).filter(k=>{const n=toNum(k);return n>T-90&&n<=T&&S.days[k].sex});
+  const split=a=>{const b=a.filter(k=>S.days[k].sex==='beschermd').length;return a.length?`${b} beschermd, ${a.length-b} onbeschermd`:'niets gelogd'};
+  h+=`<h2 class="sec">Seks</h2><div class="counts">
+    <div class="r"><span>Deze cyclus</span><b>${curDays.length}×<small>${split(curDays)}</small></b></div>
+    <div class="r"><span>Laatste 90 dagen</span><b>${d90.length}×<small>${split(d90)}</small></b></div>
+  </div>`;
+
+  // klachten en stemming, laatste 90 dagen
+  const cnt={};
+  Object.keys(S.days).forEach(k=>{const n=toNum(k);if(n>T-90&&n<=T){const e=S.days[k];(e.sym||[]).concat(e.mood||[]).forEach(x=>cnt[x]=(cnt[x]||0)+1);}});
+  const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  h+=`<h2 class="sec">Vaakst gelogd</h2>`+(top.length?`<div class="counts">${top.map(([k,v])=>`<div class="r"><span>${k}</span><b>${v}×</b></div>`).join('')}</div>`:`<p class="prose small">Nog geen klachten of stemmingen gelogd in de laatste 90 dagen.</p>`);
+
+  // signalen (richtwaarden NHS)
+  const sig=[];
+  if(m.cycles.some(c=>c.len<21||c.len>35)) sig.push('een cyclus korter dan 21 of langer dan 35 dagen');
+  if(m.R.some(r=>r.end<T-1&&r.end-r.start+1>7)) sig.push('een menstruatie van meer dan 7 dagen');
+  if(lens.length>=2&&Math.max(...lens)-Math.min(...lens)>=20) sig.push('20 dagen of meer verschil tussen je kortste en langste cyclus');
+  if(sig.length) h+=`<div class="signal"><p>Opgemerkt in je logs:</p><ul>${sig.map(s=>`<li>${s}</li>`).join('')}</ul><p class="muted">Vergeten logs kunnen dit ook veroorzaken. Gebeurt het vaker, bespreek het dan gerust met je huisarts.</p></div>`;
+  return h;
+}
+
+function stepper(k){return `<div class="stepper"><button data-act="step" data-k="${k}" data-v="-1" aria-label="Minder">−</button><b>${S.settings[k]}</b><button data-act="step" data-k="${k}" data-v="1" aria-label="Meer">+</button></div>`;}
+function viewSet(){
+  return `<div class="set"><span class="lbl">Standaard cycluslengte<small>Gebruikt tot je 2 menstruaties hebt gelogd</small></span>${stepper('cycleLen')}</div>
+  <div class="set"><span class="lbl">Standaard menstruatieduur<small>Gebruikt tot je een volledige menstruatie hebt gelogd</small></span>${stepper('periodLen')}</div>
+  <label class="set"><span class="lbl">Vruchtbaar venster tonen</span><input type="checkbox" class="sw" id="showF" ${S.settings.showFertile?'checked':''}></label>
+  <h2 class="sec">Hoe voorspellingen werken</h2>
+  <p class="prose">Getij neemt het gemiddelde van je laatste zes cycli. De ovulatie wordt geschat op cyclusdag (cycluslengte min 14), het vruchtbare venster is die dag plus de vijf dagen ervoor. Dat is de kalendermethode: in werkelijkheid valt de ovulatie meestal 10 tot 16 dagen vóór de volgende menstruatie, dus het blijft een schatting.</p>
+  <p class="prose"><b>Geen anticonceptie.</b> Gebruik het vruchtbare venster niet om zwangerschap te voorkomen.</p>
+  <h2 class="sec">Privacy</h2>
+  <p class="prose">Alles wat je logt blijft op deze iPhone. Getij heeft geen account en verstuurt niets. Wis je de app van je beginscherm of je websitegegevens, dan zijn je logs weg.</p>
+  <div class="stack" style="margin-top:26px"><button class="btn ghost danger" data-act="wipe">Alle gegevens wissen</button></div>
+  <p class="prose small" style="margin-top:18px">Getij 1.0</p>`;
+}
+
+function viewOnb(){
+  return `<div class="onb">
+    <h2 class="hello">Welkom bij Getij</h2>
+    <p class="prose">Volg je cyclus, je volgende menstruatie en je vruchtbare dagen. Alles blijft op deze iPhone.</p>
+    <label class="field"><span>Eerste dag van je laatste menstruatie</span><input type="date" id="ob-date" max="${toStr(today())}" value="${obDate}"></label>
+    <div class="set"><span class="lbl">Je cyclus duurt meestal<small>dagen, van eerste dag tot eerste dag</small></span>${stepper('cycleLen')}</div>
+    <div class="set"><span class="lbl">Je menstruatie duurt meestal<small>dagen</small></span>${stepper('periodLen')}</div>
+    <p class="prose small">Weet je het niet precies? Laat 28 en 5 staan; Getij past zich aan zodra je logt.</p>
+    <div class="stack"><button class="btn primary" data-act="ob-go">Begin</button><button class="btn ghost" data-act="ob-skip">Overslaan</button></div>
+  </div>`;
+}
+
+/* ---------- dagblad ---------- */
+function chipRow(cls,k,items,cur,multi){
+  return `<div class="chips ${cls}">`+items.map(([v,l])=>{
+    const on=multi?(cur||[]).includes(v):cur===v;
+    return `<button class="chip" data-act="${multi?'tog':'set'}" data-k="${k}" data-v="${v}" aria-pressed="${on}">${l}</button>`;
+  }).join('')+`</div>`;
+}
+function sheetHTML(s){
+  const n=toNum(s), e=S.days[s]||{}, m=model();
+  const inF=S.settings.showFertile&&(m.fert.has(n)||m.ovu.has(n));
+  let h=`<div class="grab"></div><div class="sh-top"><div><h3>${cap(fmt(fLong,n))}</h3>${n===m.T?'<p>Vandaag</p>':''}</div><button class="btn small" data-act="close">Klaar</button></div>`;
+  h+=`<div class="grp"><h4>Bloeding</h4>${chipRow('flow','flow',FLOW,e.flow||0,false)}</div>`;
+  h+=`<div class="grp"><h4>Seks</h4>${chipRow('sex','sex',SEX,e.sex,false)}`;
+  if(e.sex==='onbeschermd'&&inF) h+=`<p class="note">Deze dag valt in je geschatte vruchtbare venster. De kalendermethode is geen betrouwbare anticonceptie.</p>`;
+  h+=`</div>`;
+  h+=`<div class="grp"><h4>Klachten</h4>${chipRow('','sym',SYM.map(x=>[x,x]),e.sym,true)}</div>`;
+  h+=`<div class="grp"><h4>Stemming</h4>${chipRow('','mood',MOOD.map(x=>[x,x]),e.mood,true)}</div>`;
+  h+=`<div class="grp"><h4>Energie</h4>${chipRow('','energy',ENERGY.map(x=>[x,x]),e.energy,false)}</div>`;
+  h+=`<div class="grp"><h4>Notitie</h4><textarea id="note" placeholder="Iets om te onthouden over deze dag">${esc(e.note||'')}</textarea></div>`;
+  return h;
+}
+function openSheet(s){
+  sheetDate=s;
+  const sh=document.getElementById('sheet');
+  sh.innerHTML=sheetHTML(s); sh.scrollTop=0;
+  sh.classList.add('open'); document.getElementById('scrim').classList.add('open');
+}
+function refreshSheet(){
+  const sh=document.getElementById('sheet'), y=sh.scrollTop;
+  sh.innerHTML=sheetHTML(sheetDate); sh.scrollTop=y;
+}
+function closeSheet(){
+  sheetDate=null;
+  document.getElementById('sheet').classList.remove('open');
+  document.getElementById('scrim').classList.remove('open');
+  render();
+}
+
+/* ---------- render & acties ---------- */
+function render(){
+  document.body.classList.toggle('onb',!S.onboarded);
+  document.getElementById('sub').textContent=cap(fmt(fLong,today()));
+  const v=document.getElementById('view');
+  if(!S.onboarded){v.innerHTML=viewOnb();return;}
+  v.innerHTML={home:viewHome,cal:viewCal,ins:viewIns,set:viewSet}[tab]();
+  document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-current',b.dataset.v===tab?'page':'false'));
+}
+let tt;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2200);}
+
+document.addEventListener('click',ev=>{
+  const el=ev.target.closest('[data-act]'); if(!el) return;
+  const a=el.dataset.act, v=el.dataset.v, T=today(), ts=toStr(T);
+  switch(a){
+    case 'tab': tab=v; if(v==='cal') cal=null; render(); window.scrollTo(0,0); break;
+    case 'start': setEntry(ts,{flow:3}); S.ended=null; save(); render(); toast('Menstruatie gelogd'); break;
+    case 'flow-today': setEntry(ts,{flow:+v}); S.ended=null; save(); render(); break;
+    case 'stop': {
+      // Logs blijven staan; de lopende menstruatie wordt alleen als afgelopen gemarkeerd.
+      const m=model(); if(m.last){S.ended=toStr(m.last.start);save();}
+      render(); toast('Einde menstruatie gelogd'); break;
+    }
+    case 'open': if(toNum(el.dataset.d)>T){toast('Je kunt dagen tot en met vandaag loggen');break;} openSheet(el.dataset.d); break;
+    case 'close': closeSheet(); break;
+    case 'set': {
+      const k=el.dataset.k; let val=k==='flow'?+v:v;
+      const cur=(S.days[sheetDate]||{})[k];
+      if(k!=='flow'&&cur===val) val=null;
+      setEntry(sheetDate,{[k]:val});
+      if(k==='flow'&&val>=2){S.ended=null;save();}
+      refreshSheet(); render(); break;
+    }
+    case 'tog': {
+      const k=el.dataset.k, arr=((S.days[sheetDate]||{})[k]||[]).slice(), i=arr.indexOf(v);
+      if(i>=0) arr.splice(i,1); else arr.push(v);
+      setEntry(sheetDate,{[k]:arr}); refreshSheet(); render(); break;
+    }
+    case 'cal': {
+      if(+v===0){cal=null;} else {cal.mo+=+v; if(cal.mo<0){cal.mo=11;cal.y--;} if(cal.mo>11){cal.mo=0;cal.y++;}}
+      render(); break;
+    }
+    case 'step': {
+      const k=el.dataset.k, lim=k==='cycleLen'?[20,45]:[2,10];
+      S.settings[k]=Math.min(lim[1],Math.max(lim[0],S.settings[k]+(+v))); save(); render(); break;
+    }
+    case 'hint-off': S.hintOff=true; save(); render(); break;
+    case 'wipe':
+      if(confirm('Alle gegevens van Getij op dit toestel wissen? Dit kan niet ongedaan worden gemaakt.')){S=fresh();save();tab='home';obDate='';render();toast('Alle gegevens gewist');}
+      break;
+    case 'ob-go': {
+      if(!obDate){toast('Kies een datum, of tik op Overslaan');break;}
+      const s=toNum(obDate); if(s>T){toast('Die datum ligt in de toekomst');break;}
+      for(let d=s;d<=Math.min(T,s+S.settings.periodLen-1);d++) setEntry(toStr(d),{flow:3});
+      S.onboarded=true; save(); tab='home'; render(); break;
+    }
+    case 'ob-skip': S.onboarded=true; save(); tab='home'; render(); break;
+  }
+});
+let nt;
+document.addEventListener('input',ev=>{
+  if(ev.target.id==='ob-date') obDate=ev.target.value;
+  if(ev.target.id==='note'&&sheetDate){const val=ev.target.value; clearTimeout(nt); nt=setTimeout(()=>setEntry(sheetDate,{note:val.trim()?val:''}),250);}
+});
+document.addEventListener('change',ev=>{
+  if(ev.target.id==='showF'){S.settings.showFertile=ev.target.checked;save();render();}
+  if(ev.target.id==='note'&&sheetDate){clearTimeout(nt);const val=ev.target.value;setEntry(sheetDate,{note:val.trim()?val:''});}
+});
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&sheetDate) closeSheet();});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!sheetDate) render();});
+
+render();
+if(navigator.storage&&navigator.storage.persist) navigator.storage.persist().catch(()=>{});
+if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')) navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
